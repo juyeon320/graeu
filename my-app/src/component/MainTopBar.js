@@ -11,6 +11,7 @@ export default function MainTopBar({ showMicNotice = true }) {
   
   return (
     <div
+     className="font-seoul"
       style={{
         position: "fixed", // ✅ 고정 상단
         top: 0,
@@ -39,6 +40,7 @@ export default function MainTopBar({ showMicNotice = true }) {
             color: "#333",
             fontWeight: "bold",
             cursor: "pointer",
+            
           }}
           onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#f0faff")}
           onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "white")}
@@ -54,7 +56,7 @@ export default function MainTopBar({ showMicNotice = true }) {
               padding: "6px 12px",
               backgroundColor: "white",
               color: "#333",
-              fontWeight: "bold",
+             
               cursor: "pointer",
             }}
             onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#f0faff")}

@@ -5,6 +5,8 @@ import { useSearchParams, useRouter } from "next/navigation";
 import "../styles/globals.css"; 
 //import Footer from "@/component/footer";
 //import Title from "@/component/Title"; 
+import MainTopBar from "@/component/MainTopBar";
+
 
 export default function ChatPage() {
   const searchParams = useSearchParams();
@@ -174,6 +176,9 @@ export default function ChatPage() {
     }
   }, [isPlaying]);
 
+  const [showStartModal, setShowStartModal] = useState(true);
+
+
   
 
   // "종료" 버튼 클릭 시 경험치 페이지로 이동
@@ -184,14 +189,17 @@ export default function ChatPage() {
   console.log("🧾 렌더링 시점 messages:", messages);
 
   return (
+    
     <div 
       style={{
+        fontFamily: "SeoulHangangM, sans-serif",
         width: "100vw",
         height: "100vh",
         display: "flex",        // 👉 가로로 나란히
         flexDirection: "column",
         backgroundColor: "white",
         overflow: "hidden", // 👉 스크롤바 숨김
+        
       }}
     >
       {/* 타이틀 */}
@@ -205,60 +213,26 @@ export default function ChatPage() {
         }}
       >
       </div>
-      <div
-        style={{
-          height: "120px",
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          padding: "0 24px",
-          backgroundColor: "#fff",
-          zIndex: 1000,
-        }}
-      >
-       <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
-        <img src="/images/logo-text.png" style={{ height: "200px" }} />
-        <button style={{
-          border: "2px solid #aee2ff",
-          borderRadius: "8px",
-          padding: "6px 12px",
-          backgroundColor: "white",
-          color: "#333",
-          fontWeight: "bold",
-          cursor: "pointer"
-        }}
-        onMouseEnter={(e) => e.currentTarget.style.backgroundColor = "#f0faff"}
-        onMouseLeave={(e) => e.currentTarget.style.backgroundColor = "white"}
-        onClick={() => router.push("/")}
+      <MainTopBar showMicNotice={true} />
+      {showStartModal && (
+        <div
+          className="fixed top-0 left-0 w-screen h-screen bg-[#FFFFFF] bg-opacity-30 z-50 flex items-center justify-center"
+          onClick={() => setShowStartModal(false)} // 빈 화면 누르면 모달 닫기
         >
-          다시시작
-        </button>
+          <img
+            src="/images/start_modal.png"
+            alt="시작 모달"
+            style={{
+              width: "90%",               // 원하는 너비
+              maxWidth: "500px",         // 최대 너비 제한
+              height: "auto",
+              borderRadius: "20px",
+            }}
+            onClick={(e) => e.stopPropagation()} // 이미지 클릭 시 모달 안 닫히도록
+          />
+        </div>
+      )}
 
-        <button style={{
-          border: "2px solid #aee2ff",
-          borderRadius: "8px",
-          padding: "6px 12px",
-          backgroundColor: "white",
-          color: "#333",
-          fontWeight: "bold",
-          cursor: "pointer"
-        }}
-        onMouseEnter={(e) => e.currentTarget.style.backgroundColor = "#f0faff"}
-        onMouseLeave={(e) => e.currentTarget.style.backgroundColor = "white"}
-        onClick={() => router.push("/")}>
-          나가기
-        </button>
-        </div>
-        <div style={{ fontSize: "18px" }}>
-          <span style={{ color: "black", fontWeight: "500" }}>마이크가 안되시나요? </span>
-          <a
-            href="#"
-            style={{ color: "#80cfff", textDecoration: "underline", fontWeight: "500" }}
-          >
-            채팅으로 말하기 &gt;
-          </a>
-        </div>
-      </div>
       
 {/* 채팅 박스 */}
 <div 
@@ -375,13 +349,8 @@ export default function ChatPage() {
           transform: "translateX(-50%)",
           width: "100px",
           height: "100px",
-          backgroundColor: isRecording ? "#9FDDFF" : "#9FDDFF",
-          borderRadius: "50%",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
           cursor: "pointer",
-          transition: "transform 0.2s ease",
+          zIndex: 30,
         }}
         onClick={!isConversationEnded ? startRecording : handleEndConversation}
         onMouseEnter={() => {
@@ -392,27 +361,19 @@ export default function ChatPage() {
           setShowTooltip(false);
           document.body.style.cursor = "default";
         }}
-        onMouseDown={(e) => e.currentTarget.style.transform = "translateX(-50%) scale(0.95)"}
-        onMouseUp={(e) => e.currentTarget.style.transform = "translateX(-50%) scale(1)"}
-      >
-       {isRecording ? (
-        <div style={{
-          width: "20px",
-          height: "20px",
-          backgroundColor: "white",
-          borderRadius: "4px",
-        }} />
-      ) : (
-        <div style={{
-          width: 0,
-          height: 0,
-          borderTop: "12px solid transparent",
-          borderBottom: "12px solid transparent",
-          borderLeft: "18px solid white",
-          marginLeft: "4px",
-        }} />
-      )}
-
+        >
+        <img
+          src={isRecording ? "/images/button2.png" : "/images/button1.png"}
+          alt="녹음 버튼"
+          style={{
+            width: "100%",
+            height: "100%",
+            objectFit: "contain",
+            transition: "transform 0.2s ease",
+          }}
+        onMouseDown={(e) => e.currentTarget.style.transform = "scale(0.95)"}
+        onMouseUp={(e) => e.currentTarget.style.transform = "scale(1)"}
+        />
       </div>
 
       {/* 버튼 도움말 */}
@@ -490,7 +451,11 @@ export default function ChatPage() {
           100% { opacity: 1; }
         }
       `}</style>
+
+      
       
     </div>
+
+    
   );
 }

@@ -1,6 +1,7 @@
 "use client";
 import MainTopBar from "@/component/MainTopBar";
 import GraphDemoPage from "../component/GraphDemoPage"; // ✅ 추가
+import Modal from "@/component/modal"; // ✅ 모달 import
 
 import "../styles/globals.css";
 //import { useSearchParams, useRouter } from "next/navigation";
@@ -9,18 +10,39 @@ import { useEffect, useState } from "react";
 export default function ExperiencePage() {
   const [currentTab, setCurrentTab] = useState("script");
   const [savedMessages, setSavedMessages] = useState([]);
-  
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
   useEffect(() => {
     const stored = localStorage.getItem("chatMessages");
     if (stored) {
       setSavedMessages(JSON.parse(stored));
     }
   }, []);
+  const [analysisResult, setAnalysisResult] = useState(null);
+
+    useEffect(() => {
+      const fetchAnalysisResult = async () => {
+        try {
+          //const response = await fetch("/api/analysis"); // ← 실제 API 주소로 바꿔
+          const response = await fetch("/api/dummy");
+          if (!response.ok) throw new Error("불러오기 실패");
+
+          const data = await response.json();
+          setAnalysisResult(data);
+        } catch (error) {
+          console.error("❌ 분석 결과 불러오기 실패:", error);
+        }
+      };
+
+      fetchAnalysisResult();
+    }, []);
+
+
 
 
 
   return (
-    <div className="w-screen flex justify-center bg-white" style={{ paddingTop: "220px" }}>
+    <div className="w-screen flex justify-center bg-white" style={{ paddingTop: "220px", font: "font-seoul" }}>
 
       {/* ✅ MainTopBar */}
       <MainTopBar showMicNotice={false} />
@@ -53,11 +75,13 @@ export default function ExperiencePage() {
             <button
             
             onClick={() => setCurrentTab(tab)}
-            className="px-6 py-2 rounded-lg"
+            className="px-6 py-2 rounded-lg font-seoul"
             style={{
                 backgroundColor: currentTab === tab ? "#91D3F0" : "#ffffff",
                 color: currentTab === tab ? "#ffffff" : "#91D3F0",
                 border: "1.5px solid #9FDDFF",
+                font : "font-seoul",
+                fontSize: "16px",
                 fontWeight: "600",
             }}
             >
@@ -82,7 +106,7 @@ export default function ExperiencePage() {
 
         {currentTab === "script" && (
           <div
-            className="px-2"
+            className="px-2 font-seoul"
             style={{
                 maxHeight: "60vh", // ✅ 필요한 만큼 조절 가능
                 overflowY: "auto", // ✅ 세로 스크롤 활성화
@@ -131,31 +155,29 @@ export default function ExperiencePage() {
           </div>
         )}
 
-        {currentTab === "word" && (
-        <div className="px-0"> {/* ✅ 바깥 테두리 제거하고 여백만 유지 */}
+      {currentTab === "word" && analysisResult && (
+        <div className="px-0 font-seoul"> {/* ✅ 바깥 테두리 제거하고 여백만 유지 */}
             <div className="flex flex-row gap-6">
+
             {/* 왼쪽: 워드 클라우드 박스 */}
             <div className="flex-1 min-h-[500px] border-2 rounded-lg relative" style={{ borderColor: "#9FDDFF" }}>
-                {/* 워드 클라우드 더미 데이터 */}
                 <div className="relative w-full h-full p-4">
-                {[
-                    { text: "죽고싶어", size: "text-6xl", top: "40%", left: "30%" },
-                    { text: "불안해", size: "text-4xl", top: "20%", left: "20%" },
-                    { text: "살기 싫어", size: "text-3xl", top: "60%", left: "50%" },
-                    { text: "괴롭힘", size: "text-2xl", top: "30%", left: "60%" },
-                    { text: "학교", size: "text-xl", top: "70%", left: "40%" },
-                    { text: "죽으면그만이야", size: "text-xl", top: "10%", left: "50%" },
-                    { text: "아니 근데", size: "text-2xl", top: "80%", left: "20%" },
-                    { text: "내가이걸왜", size: "text-xl", top: "60%", left: "70%" },
-                ].map((word, idx) => (
+                {Object.entries(analysisResult["주요 키워드"]).map(([text, countStr], idx) => {
+                  const count = parseInt(countStr.replace("회", ""));
+                  const fontSize = Math.min(6, Math.max(1, Math.floor(count))) + 1; // 2 ~ 7 사이 text-xl~6xl
+                  const top = Math.floor(Math.random() * 80) + "%";
+                  const left = Math.floor(Math.random() * 80) + "%";
+
+                  return (
                     <div
-                    key={idx}
-                    className={`absolute ${word.size} font-semibold text-sky-600`}
-                    style={{ top: word.top, left: word.left }}
+                      key={idx}
+                      className={`absolute text-${fontSize}xl font-semibold text-sky-600`}
+                      style={{ top, left }}
                     >
-                    {word.text}
+                      {text}
                     </div>
-                ))}
+                  );
+                })}
                 </div>
             </div>
 
@@ -167,8 +189,9 @@ export default function ExperiencePage() {
                     marginRight: "0px",
                     borderWidth: "2px",
                     borderColor: "#9FDDFF",
+                    font: "font-seoul",
                 }}
-                className="rounded-lg p-4 space-y-4 min-h-[500px]"
+                className="rounded-lg p-8 space-y-4 min-h-[500px]"
                 >
                 {/* 기존 박스 */}
                 <div>
@@ -176,22 +199,13 @@ export default function ExperiencePage() {
                         대화 중 가장 많이 사용된 키워드
                     </h2>
                     <ul className="text-xl space-y-5">
-                    {[
-                        ["죽고싶어", "8회"],
-                        ["살기 싫어", "7회"],
-                        ["불안해", "6회"],
-                        ["괴롭힘", "5회"],
-                        ["학교", "5회"],
-                        ["아니근데", "1회"],
-                        ["죽으면그만이야", "1회"],
-                        ["내가이걸왜", "1회"],
-                    ].map(([word, count], idx) => (
-                        <li key={idx} className="flex">
+                    {Object.entries(analysisResult["주요 키워드"]).map(([word, count], idx) => (
+                      <li key={idx} className="flex">
                         <span className="flex-1 text-left">{word}</span>
                         <span className="text-right w-[40px]">{count}</span>
-                        </li>
+                      </li>
                     ))}
-                    </ul>
+                  </ul>
 
                 </div>
 
@@ -205,16 +219,12 @@ export default function ExperiencePage() {
 
 
                 
-{currentTab === "summary" && (
-    <div className="w-full px-0">
-    <GraphDemoPage /> {/* ✅ 그래프 전체 삽입 */}
-  </div>
-  
-)}
-
-
-
-
+        {currentTab === "summary" && analysisResult && (
+            <div className="w-full px-0 font-seoul">
+              <GraphDemoPage analysisResult={analysisResult} />
+            </div>
+            
+        )}
       </div>
     </div>
     </div>

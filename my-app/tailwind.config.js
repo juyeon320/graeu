@@ -10,6 +10,7 @@ module.exports = {
     extend: {
       fontFamily: {
         hakgyo: ["HakgyoansimDunggeunmisoTTF-B", "sans-serif"], // 폰트 설정
+        seoul: ['SeoulHangangM', 'sans-serif'], // ✅ 추가
       },
   },
 },

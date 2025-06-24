@@ -26,7 +26,7 @@ export default function Home() {
       {/* 🔹 타이틀 */}
       <div className={`text-center transition-opacity duration-1000 ${isLoaded ? 'opacity-100' : 'opacity-0'}`}>
         <Title>어떤 고민이 있으신가요?</Title>
-        <p className="text-lg text-black mt-2 flex items-center justify-center gap-2">
+        <p className="text-lg text-black mt-2 flex items-center justify-center gap-2 font-seoul">
           아래 버튼을 눌러 
           <Image 
             src="/images/logo-text.png" 
