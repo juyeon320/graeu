@@ -21,11 +21,11 @@ export default function ExperiencePage() {
   
   const [analysisResult, setAnalysisResult] = useState(null);
 
-    useEffect(() => {
+    /*useEffect(() => {
       const fetchAnalysisResult = async () => {
         try {
-          //const response = await fetch("/api/analysis"); // ← 실제 API 주소로 바꿔
-          const response = await fetch("/api/dummy");
+          const response = await fetch("/api/analysis"); // ← 실제 API 주소로 바꿔
+          //const response = await fetch("/api/dummy");
           if (!response.ok) throw new Error("불러오기 실패");
 
           const data = await response.json();
@@ -36,7 +36,30 @@ export default function ExperiencePage() {
       };
 
       fetchAnalysisResult();
-    }, []);
+    }, []);*/
+    useEffect(() => {
+      const fetchAnalysisResult = async () => {
+        try {
+          if (!savedMessages || savedMessages.length === 0) return;
+    
+          const response = await fetch("/api/analyze", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ messages: savedMessages }),
+          });
+    
+          if (!response.ok) throw new Error("불러오기 실패");
+    
+          const data = await response.json();
+          setAnalysisResult(JSON.parse(data.analysis)); // ✅ 여기에 분석 결과 저장
+        } catch (error) {
+          console.error("❌ 분석 결과 불러오기 실패:", error);
+        }
+      };
+    
+      fetchAnalysisResult();
+    }, [savedMessages]); // ✅ savedMessages가 생기면 분석 요청!
+    
 
 
 

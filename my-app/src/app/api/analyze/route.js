@@ -1,3 +1,12 @@
+import { OpenAI } from "openai"; //여니추가 
+import { NextResponse } from "next/server"; // ✅ 이거 꼭 필요
+
+const openai = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY,
+}); // 여니추가 
+
+
+
 export async function POST(req) {
     const { messages } = await req.json();
   

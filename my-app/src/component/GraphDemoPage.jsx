@@ -37,7 +37,7 @@ const consultationNeedScore = 85;
 export default function GraphDemoPage({ analysisResult }) {
   if (!analysisResult) return null;
 
-  const emotionData = Object.entries(analysisResult["감정 분포"]).map(([key, val]) => ({
+  const emotionData = Object.entries(analysisResult["감정 분포"] || analysisResult["감정 분포 (%)"]).map(([key, val]) => ({
     name: key,
     value: parseInt(val.replace("%", "")),
   }));

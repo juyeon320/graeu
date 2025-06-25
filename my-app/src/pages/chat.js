@@ -409,6 +409,7 @@ export default function ChatPage() {
           onEnded={() => {
             setIsPlaying(false);
             if (isConversationEnded) {
+              localStorage.setItem("chatMessages", JSON.stringify(messages));
               router.push(`/experience`);
             }
           }}
