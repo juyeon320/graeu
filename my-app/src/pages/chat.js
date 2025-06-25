@@ -3,10 +3,7 @@
 import { useState, useRef, useEffect } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import "../styles/globals.css"; 
-//import Footer from "@/component/footer";
-//import Title from "@/component/Title"; 
 import MainTopBar from "@/component/MainTopBar";
-
 
 export default function ChatPage() {
   const searchParams = useSearchParams();
@@ -14,28 +11,27 @@ export default function ChatPage() {
   const category = searchParams.get("category");
   const difficulty = searchParams.get("difficulty");
 
-  const MAX_RECORDS = 3; // 최대 녹음 횟수 설정
+  const MAX_RECORDS = 3;
   const [messages, setMessages] = useState([]);
   const [recordCount, setRecordCount] = useState(0);
   const [isRecording, setIsRecording] = useState(false);
   const [audioSrc, setAudioSrc] = useState(null);
   const [isConversationEnded, setIsConversationEnded] = useState(false);
-  const [remainingTime, setRemainingTime] = useState(0); // 녹음 남은 시간 표시
-  const [showTooltip, setShowTooltip] = useState(false); // 버튼 도움말 표시
+  const [remainingTime, setRemainingTime] = useState(0);
+  const [showTooltip, setShowTooltip] = useState(false);
   const mediaRecorderRef = useRef(null);
   const audioChunksRef = useRef([]);
   const audioRef = useRef(null);
   const [isPlaying, setIsPlaying] = useState(false);
-  const [showRecordingIndicator, setShowRecordingIndicator] = useState(false); // 녹음 중 표시기
+  const [showRecordingIndicator, setShowRecordingIndicator] = useState(false);
   
-  const chatContainerRef = useRef(null); // 자동 스크롤
+  const chatContainerRef = useRef(null);
   useEffect(() => {
     if (chatContainerRef.current) {
       chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
     }
   }, [messages]);
   
-
   // 녹음 시작 (4초 후 자동 중지)
   const startRecording = async () => {
     if (isRecording || isPlaying || recordCount >= MAX_RECORDS) return;
@@ -43,7 +39,7 @@ export default function ChatPage() {
     console.log(`🎤 녹음 시작! 현재 녹음 횟수: ${recordCount}/${MAX_RECORDS}`);
     audioChunksRef.current = [];
     setAudioSrc(null);
-    setRemainingTime(4); // 4초로 설정
+    setRemainingTime(4);
     setShowRecordingIndicator(true);
 
     try {
@@ -99,7 +95,7 @@ export default function ChatPage() {
     setShowRecordingIndicator(false);
   };
 
-  // STT + GPT + TTS API 호출
+  // STT + GPT + TTS API 호출 (분석 제거)
   const handleTranscribeAndAskGPT = async (chunks) => {
     if (chunks.length === 0) return;
 
@@ -111,12 +107,10 @@ export default function ChatPage() {
     formData.append("difficulty", difficulty); 
 
     try {
-      
       const res = await fetch("/api/stt", {
         method: "POST",
         body: formData,
       });
-      
       
       const data = await res.json();
       console.log("📦 서버 응답 전체 확인:", data);
@@ -124,17 +118,12 @@ export default function ChatPage() {
       console.log("🎤 유저 입력:", userText);
       console.log("🤖 GPT 응답:", gptReply);
       console.log("🔄 업데이트된 메시지 리스트:", updatedMessages);
-      console.log("🧾 handleTranscribeAndAskGPT 호출 후 messages:", messages);
       
-      
-      //gptReply = data.gptReply;
-      
-      const newMessages = updatedMessages; // ✅ 여기를 받아서
+      const newMessages = updatedMessages;
       const audioBase64 = data.audio;
       
-      setMessages(newMessages); // ✅ 여기서 화면에 띄울 messages 최신화
+      setMessages(newMessages);
       setAudioSrc(`data:audio/mpeg;base64,${audioBase64}`);
-      
       
       if (audio) {
         const audioData = `data:audio/mp3;base64,${audio}`;
@@ -157,7 +146,6 @@ export default function ChatPage() {
       }
       
     } catch (err) {
-      // 오류 발생 시 에러 메시지 표시
       setMessages(prev => [...prev.slice(0, -1), { role: "system", content: "오류가 발생했습니다. 다시 시도해 주세요." }]);
       console.error("API 오류:", err);
       alert("오류 발생: " + err.message);
@@ -180,26 +168,34 @@ export default function ChatPage() {
 
   // "종료" 버튼 클릭 시 경험치 페이지로 이동
   const handleEndConversation = () => {
-    localStorage.setItem("chatMessages", JSON.stringify(messages));
+    // messages 배열이 최신인지 확인 후 저장
+    const currentMessages = messages;
+  
+    if (!Array.isArray(currentMessages) || currentMessages.length === 0) {
+      alert("⚠️ 저장할 대화가 없습니다. 대화를 먼저 진행해주세요.");
+      return;
+    }
+  
+    console.log("💾 대화 저장 중:", currentMessages);
+    localStorage.setItem("chatMessages", JSON.stringify(currentMessages));
     router.push(`/experience`);
   };
+  
+
   console.log("🧾 렌더링 시점 messages:", messages);
 
   return (
-    
     <div 
       style={{
         fontFamily: "SeoulHangangM, sans-serif",
         width: "100vw",
         height: "100vh",
-        display: "flex",        // 👉 가로로 나란히
+        display: "flex",
         flexDirection: "column",
         backgroundColor: "white",
-        overflow: "hidden", // 👉 스크롤바 숨김
-        
+        overflow: "hidden",
       }}
     >
-      {/* 타이틀 */}
       <div
         style={{
           position: "absolute",
@@ -214,103 +210,96 @@ export default function ChatPage() {
       {showStartModal && (
         <div
           className="fixed top-0 left-0 w-screen h-screen bg-[#FFFFFF] bg-opacity-30 z-50 flex items-center justify-center"
-          onClick={() => setShowStartModal(false)} // 빈 화면 누르면 모달 닫기
+          onClick={() => setShowStartModal(false)}
         >
           <img
             src="/images/start_modal.png"
             alt="시작 모달"
             style={{
-              width: "90%",               // 원하는 너비
-              maxWidth: "500px",         // 최대 너비 제한
+              width: "90%",
+              maxWidth: "500px",
               height: "auto",
               borderRadius: "20px",
             }}
-            onClick={(e) => e.stopPropagation()} // 이미지 클릭 시 모달 안 닫히도록
+            onClick={(e) => e.stopPropagation()}
           />
         </div>
       )}
 
-      
-{/* 채팅 박스 */}
-<div 
-  ref={chatContainerRef}
-  className="chat-scroll"
-  style={{
-    height: "calc(100vh - 300px)", // 120px 헤더 + 100px 버튼 기준
-      overflowY: "auto",
-      padding: "80px",
-      display: "flex",
-      flexDirection: "column",
-      gap: "16px",
-      scrollbarWidth: "bold",
-      scrollbarColor: " #9FDDFF #FFFFFF", // ✅ Firefox 대응
-      msOverflowStyle: "auto",
-  }}
->
-  <div
-    style={{
-      width: "100%",
-      padding: "80px 80px", // 좌우 여백만 적절히
-      display: "flex",
-      flexDirection: "column",
-      gap: "16px",
-    }}
-  >
-    {Array.isArray(messages) ? (
-      messages.map((msg, index) => {
-        //const isSystemMessage = msg.role === "system" && index === 0;
-        //const isGPTResponse = msg.role === "system" && index !== 0;
-        const isUserMessage = msg.role === "user";
-        //const isGPTResponse = msg.role === "system";
-        return (
-          <div
-            key={index}
-            style={{
-              display: "flex",
-              justifyContent: isUserMessage ? "flex-end" : "flex-start",
-            }}
-          >
-            
-            {!isUserMessage && (
-              
-            <img
-              src="/images/cloud.png"
-              alt="구름 프로필"
-              style={{
-                width: "60px", // ✅ 크기 키움
-                height: "60px",
-                borderRadius: "50%",
-                objectFit: "cover",
-                marginRight: "16px", // ✅ 말풍선과 거리 띄움
-                marginTop: "4px"
-              }}
-            />
+      {/* 채팅 박스 */}
+      <div 
+        ref={chatContainerRef}
+        className="chat-scroll"
+        style={{
+          height: "calc(100vh - 300px)",
+          overflowY: "auto",
+          padding: "80px",
+          display: "flex",
+          flexDirection: "column",
+          gap: "16px",
+          scrollbarWidth: "bold",
+          scrollbarColor: " #9FDDFF #FFFFFF",
+          msOverflowStyle: "auto",
+        }}
+      >
+        <div
+          style={{
+            width: "100%",
+            padding: "80px 80px",
+            display: "flex",
+            flexDirection: "column",
+            gap: "16px",
+          }}
+        >
+          {Array.isArray(messages) ? (
+            messages.map((msg, index) => {
+              const isUserMessage = msg.role === "user";
+              return (
+                <div
+                  key={index}
+                  style={{
+                    display: "flex",
+                    justifyContent: isUserMessage ? "flex-end" : "flex-start",
+                  }}
+                >
+                  {!isUserMessage && (
+                    <img
+                      src="/images/cloud.png"
+                      alt="구름 프로필"
+                      style={{
+                        width: "60px",
+                        height: "60px",
+                        borderRadius: "50%",
+                        objectFit: "cover",
+                        marginRight: "16px",
+                        marginTop: "4px"
+                      }}
+                    />
+                  )}
+                  <div
+                    style={{
+                      maxWidth: "70%",
+                      padding: "12px 16px",
+                      borderRadius: "16px",
+                      backgroundColor: isUserMessage ? "#ffffff" : "#ffffff",
+                      color: "#333",
+                      fontSize: "18px",
+                      whiteSpace: "pre-wrap",
+                      border: isUserMessage ? "none" : "2px solid #aee2ff",
+                    }}
+                  >
+                    {msg.content}
+                  </div>
+                </div>
+              );
+            })
+          ) : (
+            <p style={{ textAlign: "center", color: "red" }}>
+              ⚠️ 오류: messages가 배열이 아닙니다. 현재 값: {JSON.stringify(messages)}
+            </p>
           )}
-          {/* ✅ GPT 채팅 말풍선 */}
-            <div
-              style={{
-                maxWidth: "70%",
-                padding: "12px 16px",
-                borderRadius: "16px",
-                backgroundColor: isUserMessage ? "#ffffff" : "#ffffff",
-                color: "#333",
-                fontSize: "18px",
-                whiteSpace: "pre-wrap",
-                border: isUserMessage ? "none" : "2px solid #aee2ff",
-              }}
-            >
-              {msg.content}
-            </div>
-          </div>
-        );
-      })
-    ) : (
-      <p style={{ textAlign: "center", color: "red" }}>
-        ⚠️ 오류: messages가 배열이 아닙니다. 현재 값: {JSON.stringify(messages)}
-      </p>
-    )}
-  </div>
-</div>
+        </div>
+      </div>
 
       {/* 녹음 중 표시기 */}
       {showRecordingIndicator && (
@@ -328,7 +317,6 @@ export default function ChatPage() {
             fontWeight: "bold",
             display: "flex",
             alignItems: "center",
-            //boxShadow: "0 4px 8px rgba(255, 255, 255, 0.3)",
             animation: "pulse 1s infinite"
           }}
         >
@@ -337,27 +325,27 @@ export default function ChatPage() {
         </div>
       )}
 
-      {/* 남은 대화 횟수 표시 - 결과 전송하기 버튼 왼쪽으로 이동 */}
+      {/* 남은 대화 횟수 표시 */}
       {!isConversationEnded && !showStartModal && (
-      <div
-        style={{
-          position: "absolute",
-          bottom: "6vh",
-          right: "calc(5vw + 180px)", 
-          backgroundColor: "rgba(159, 221, 255, 0.9)",
-          color: "white",
-          padding: "14px 24px", 
-          borderRadius: "12px", 
-          fontSize: "1.2rem", 
-          fontWeight: "bold",
-          textAlign: "center",
-          boxShadow: "0 4px 8px rgba(0,0,0,0.1)", 
-          minWidth: "140px", 
-        }}
-      >
-        남은 대화: {MAX_RECORDS - recordCount}회
-      </div>
-    )}
+        <div
+          style={{
+            position: "absolute",
+            bottom: "6vh",
+            right: "calc(5vw + 180px)", 
+            backgroundColor: "rgba(159, 221, 255, 0.9)",
+            color: "white",
+            padding: "14px 24px", 
+            borderRadius: "12px", 
+            fontSize: "1.2rem", 
+            fontWeight: "bold",
+            textAlign: "center",
+            boxShadow: "0 4px 8px rgba(0,0,0,0.1)", 
+            minWidth: "140px", 
+          }}
+        >
+          남은 대화: {MAX_RECORDS - recordCount}회
+        </div>
+      )}
 
       {/* 녹음/종료 버튼 */}
       <div 
@@ -370,7 +358,7 @@ export default function ChatPage() {
           height: "100px",
           cursor: "pointer",
           zIndex: 30,
-          backgroundColor: isRecording ? "#E6E6FA" : "transparent", // 녹음 중일 때 연보라색 배경
+          backgroundColor: isRecording ? "#E6E6FA" : "transparent",
           borderRadius: "50%",
           transition: "background-color 0.3s ease",
         }}
@@ -383,7 +371,7 @@ export default function ChatPage() {
           setShowTooltip(false);
           document.body.style.cursor = "default";
         }}
-        >
+      >
         <img
           src={isRecording ? "/images/button2.png" : "/images/button1.png"}
           alt="녹음 버튼"
@@ -393,8 +381,8 @@ export default function ChatPage() {
             objectFit: "contain",
             transition: "transform 0.2s ease",
           }}
-        onMouseDown={(e) => e.currentTarget.style.transform = "scale(0.95)"}
-        onMouseUp={(e) => e.currentTarget.style.transform = "scale(1)"}
+          onMouseDown={(e) => e.currentTarget.style.transform = "scale(0.95)"}
+          onMouseUp={(e) => e.currentTarget.style.transform = "scale(1)"}
         />
       </div>
 
@@ -403,7 +391,7 @@ export default function ChatPage() {
         <div
           style={{
             position: "absolute",
-            bottom: "18vh", // 높이를 더 올려서 녹음 버튼 위쪽에 여유 있게 배치
+            bottom: "18vh",
             left: "50%",
             transform: "translateX(-50%)",
             backgroundColor: "rgba(0,0,0,0.8)",
@@ -418,8 +406,6 @@ export default function ChatPage() {
           {isConversationEnded ? "대화 종료하기" : "여기를 눌러 말하세요"}
         </div>
       )}
-      
-      
 
       {/* 음성 자동 재생 (숨김) */}
       {audioSrc && (
@@ -439,27 +425,29 @@ export default function ChatPage() {
           브라우저가 오디오 태그를 지원하지 않습니다.
         </audio>
       )}
+
+      {/* 결과 전송하기 버튼 - 항상 표시 */}
       {recordCount >= 0 && (
-      <button
-        onClick={handleEndConversation}
-        style={{
-          position: "absolute",
-          bottom: "6vh",
-          right: "5vw",
-          backgroundColor: "#9FDDFF",
-          color: "white",
-          fontWeight: "bold",
-          border: "none",
-          borderRadius: "12px",
-          padding: "14px 24px",
-          fontSize: "1.2rem",
-          boxShadow: "0 4px 8px rgba(0,0,0,0.1)",
-          cursor: "pointer",
-        }}
-      >
-        결과 전송하기
-      </button>
-    )}
+        <button
+          onClick={handleEndConversation}
+          style={{
+            position: "absolute",
+            bottom: "6vh",
+            right: "5vw",
+            backgroundColor: "#9FDDFF",
+            color: "white",
+            fontWeight: "bold",
+            border: "none",
+            borderRadius: "12px",
+            padding: "14px 24px",
+            fontSize: "1.2rem",
+            boxShadow: "0 4px 8px rgba(0,0,0,0.1)",
+            cursor: "pointer",
+          }}
+        >
+          결과 전송하기
+        </button>
+      )}
 
       {/* 스타일 - 애니메이션 */}
       <style jsx>{`
@@ -473,11 +461,6 @@ export default function ChatPage() {
           100% { opacity: 1; }
         }
       `}</style>
-
-      
-      
     </div>
-
-    
   );
 }
