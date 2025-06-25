@@ -9,13 +9,13 @@ import { useEffect, useState } from "react";
 export default function ExperiencePage() {
   const [currentTab, setCurrentTab] = useState("script");
   const [savedMessages, setSavedMessages] = useState([]);
-<<<<<<< HEAD
+
   //const [isModalOpen, setIsModalOpen] = useState(false);
-=======
+
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [analysisResult, setAnalysisResult] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
->>>>>>> feature/hazel
+
 
   // 저장된 메시지 로드
   useEffect(() => {
@@ -26,73 +26,24 @@ export default function ExperiencePage() {
       setSavedMessages(parsedMessages);
     }
   }, []);
-<<<<<<< HEAD
-  
-  const [analysisResult, setAnalysisResult] = useState(null);
 
-    /*useEffect(() => {
-      const fetchAnalysisResult = async () => {
-        try {
-          const response = await fetch("/api/analysis"); // ← 실제 API 주소로 바꿔
-          //const response = await fetch("/api/dummy");
-          if (!response.ok) throw new Error("불러오기 실패");
-=======
-
-  // 분석 결과 가져오기 - savedMessages가 있을 때만 실행
   useEffect(() => {
     const fetchAnalysisResult = async () => {
-      if (!savedMessages || savedMessages.length === 0) {
-        console.log("⚠️ 저장된 메시지가 없습니다.");
-        return;
-      }
->>>>>>> feature/hazel
-
+      if (!savedMessages || savedMessages.length === 0) return;
+  
       try {
         setIsLoading(true);
-        console.log("🔍 분석 요청 시작...");
         const response = await fetch("/api/analyze", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ messages: savedMessages }),
         });
-
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-
-<<<<<<< HEAD
-      fetchAnalysisResult();
-    }, []);*/
-    useEffect(() => {
-      const fetchAnalysisResult = async () => {
-        try {
-          if (!savedMessages || savedMessages.length === 0) return;
-    
-          const response = await fetch("/api/analyze", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ messages: savedMessages }),
-          });
-    
-          if (!response.ok) throw new Error("불러오기 실패");
-    
-          const data = await response.json();
-          setAnalysisResult(JSON.parse(data.analysis)); // ✅ 여기에 분석 결과 저장
-        } catch (error) {
-          console.error("❌ 분석 결과 불러오기 실패:", error);
-        }
-      };
-    
-      fetchAnalysisResult();
-    }, [savedMessages]); // ✅ savedMessages가 생기면 분석 요청!
-    
-=======
+  
+        if (!response.ok) throw new Error("불러오기 실패");
+  
         const data = await response.json();
-        console.log("📦 분석 API 응답:", data);
->>>>>>> feature/hazel
-
+  
         let parsed = data.analysis;
-
         if (typeof parsed === "string") {
           try {
             parsed = JSON.parse(parsed);
@@ -101,13 +52,12 @@ export default function ExperiencePage() {
             parsed = null;
           }
         }
-
+  
         console.log("✅ 최종 분석 결과:", parsed);
         setAnalysisResult(parsed);
       } catch (error) {
         console.error("❌ 분석 실패:", error);
-
-        const defaultAnalysis = {
+        setAnalysisResult({
           "감정 분포": {
             "슬픔": "25%",
             "불안": "30%",
@@ -123,13 +73,12 @@ export default function ExperiencePage() {
           "대화 집중도": 70,
           "상담 필요도 등급": "주기적 관찰",
           "상담사용 요약문": "분석 처리 중 오류가 발생했습니다."
-        };
-        setAnalysisResult(defaultAnalysis);
+        });
       } finally {
         setIsLoading(false);
       }
     };
-
+  
     fetchAnalysisResult();
   }, [savedMessages]);
 
@@ -280,14 +229,9 @@ export default function ExperiencePage() {
             <div className="w-full px-0 font-seoul">
               <GraphDemoPage analysisResult={analysisResult} />
             </div>
-<<<<<<< HEAD
-            
         )}
-
-=======
-          )}
         </div>
->>>>>>> feature/hazel
+
       </div>
     </div>
   );
