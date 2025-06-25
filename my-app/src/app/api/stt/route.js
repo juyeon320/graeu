@@ -9,7 +9,7 @@ const openai = new OpenAI({
 });
 
 const ELEVENLABS_API_KEY = process.env.ELEVENLABS_API_KEY;
-const VOICE_ID = "Xb7hH8MSUJpSbSDYk0k2"; // ElevenLabs에서 사용할 음성 ID
+const VOICE_ID = "xi3rF0t7dg7uN2M0WUhr"; // ElevenLabs에서 사용할 음성 ID
 const MAX_DURATION = 5; // 최대 허용 녹음 길이 (초)
 
 const commonPrompt = {
@@ -176,7 +176,7 @@ export async function POST(req) {
     messages.push({ role: "system", content: gptReply });
 
     // (J) ElevenLabs TTS API 호출
-    const ttsUrl = `https://api.elevenlabs.io/v1/text-to-speech/${VOICE_ID}`;
+    const ttsUrl = `https://api.elevenlabs.io/v1/text-to-speech/${VOICE_ID}/stream`;
     const ttsHeaders = {
       "Content-Type": "application/json",
       "xi-api-key": ELEVENLABS_API_KEY,
@@ -186,11 +186,13 @@ export async function POST(req) {
       text: gptReply,
       model_id: "eleven_multilingual_v2",
       voice_settings: {
-        stability: 0.5,
-        similarity_boost: 0.8,
+        stability: 0.3,
+        similarity_boost: 0.4,
         style: 1.0,
       },
     };
+
+
 
     const ttsResponse = await fetch(ttsUrl, {
       method: "POST",
@@ -198,8 +200,14 @@ export async function POST(req) {
       body: JSON.stringify(ttsPayload),
     });
 
+    // 에러 핸들링
     if (!ttsResponse.ok) {
-      return NextResponse.json({ error: `TTS API Error: ${ttsResponse.status}` }, { status: ttsResponse.status });
+      const errorText = await ttsResponse.text();
+      console.error("❌ TTS API Error Body:", errorText);
+      return NextResponse.json(
+          { error: `TTS API Error: ${ttsResponse.status}`, details: errorText },
+          { status: ttsResponse.status }
+      );
     }
 
     const audioBuffer = await ttsResponse.arrayBuffer();
