@@ -178,9 +178,6 @@ export default function ChatPage() {
 
   const [showStartModal, setShowStartModal] = useState(true);
 
-
-  
-
   // "종료" 버튼 클릭 시 경험치 페이지로 이동
   const handleEndConversation = () => {
     localStorage.setItem("chatMessages", JSON.stringify(messages));
@@ -340,6 +337,28 @@ export default function ChatPage() {
         </div>
       )}
 
+      {/* 남은 대화 횟수 표시 - 결과 전송하기 버튼 왼쪽으로 이동 */}
+      {!isConversationEnded && !showStartModal && (
+      <div
+        style={{
+          position: "absolute",
+          bottom: "6vh",
+          right: "calc(5vw + 180px)", 
+          backgroundColor: "rgba(159, 221, 255, 0.9)",
+          color: "white",
+          padding: "14px 24px", 
+          borderRadius: "12px", 
+          fontSize: "1.2rem", 
+          fontWeight: "bold",
+          textAlign: "center",
+          boxShadow: "0 4px 8px rgba(0,0,0,0.1)", 
+          minWidth: "140px", 
+        }}
+      >
+        남은 대화: {MAX_RECORDS - recordCount}회
+      </div>
+    )}
+
       {/* 녹음/종료 버튼 */}
       <div 
         style={{
@@ -351,6 +370,9 @@ export default function ChatPage() {
           height: "100px",
           cursor: "pointer",
           zIndex: 30,
+          backgroundColor: isRecording ? "#E6E6FA" : "transparent", // 녹음 중일 때 연보라색 배경
+          borderRadius: "50%",
+          transition: "background-color 0.3s ease",
         }}
         onClick={!isConversationEnded ? startRecording : handleEndConversation}
         onMouseEnter={() => {
@@ -381,7 +403,7 @@ export default function ChatPage() {
         <div
           style={{
             position: "absolute",
-            bottom: "25vh",
+            bottom: "18vh", // 높이를 더 올려서 녹음 버튼 위쪽에 여유 있게 배치
             left: "50%",
             transform: "translateX(-50%)",
             backgroundColor: "rgba(0,0,0,0.8)",
