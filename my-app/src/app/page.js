@@ -39,37 +39,33 @@ export default function Home() {
         </p>
       </div>
 
-
-      <div
-        onClick={() => router.push("/chat")}
-        style={{
-          position: "absolute",
-          bottom: "6vh",
-          left: "50%",
-          transform: "translateX(-50%)",
-          width: "150px",
-          height: "150px",
-          backgroundColor: "#9FDDFF",
-          borderRadius: "50%",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          cursor: "pointer",
-          transition: "transform 0.2s ease",
-        }}
-        onMouseDown={(e) => e.currentTarget.style.transform = "translateX(-50%) scale(0.95)"}
-        onMouseUp={(e) => e.currentTarget.style.transform = "translateX(-50%) scale(1)"}
-      >
-        {/* ▶ 아이콘 */}
-        <div style={{
-         width: 0,
-         height: 0,
-         borderTop: "27px solid transparent",     // ⬆️ 높이 증가
-         borderBottom: "27px solid transparent",
-         borderLeft: "36px solid white",          // ⬅️ 넓이 증가
-         marginLeft: "9px",  
-        }} />
-      </div>
-      </div>
-    );
-  }
+      {/* 시작하기 버튼 */}
+      <button
+      onClick={() => router.push("/chat")}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+      style={{
+        position: "absolute",
+        bottom: "4rem",
+        left: "50%",
+        transform: "translateX(-50%)",
+        padding: "1rem 2rem",
+        minWidth: "120px",
+        backgroundColor: isHovered ? "rgba(159, 221, 255, 1)" : "rgba(159, 221, 255, 0.9)",
+        color: "white",
+        fontSize: "1.125rem", // text-lg
+        fontWeight: 600,
+        borderRadius: "0.5rem",
+        fontFamily: "inherit",
+        transition: "all 0.2s ease-in-out",
+        transformOrigin: "center",
+        boxShadow: isHovered ? "0 8px 20px rgba(0, 0, 0, 0.15)" : "0 4px 12px rgba(0, 0, 0, 0.1)",
+        scale: isHovered ? "1.05" : "1",
+        cursor: "pointer",
+      }}
+    >
+      시작하기
+    </button>
+    </div>
+  );
+}
