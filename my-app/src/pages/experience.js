@@ -10,7 +10,7 @@ import { useEffect, useState } from "react";
 export default function ExperiencePage() {
   const [currentTab, setCurrentTab] = useState("script");
   const [savedMessages, setSavedMessages] = useState([]);
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  //const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
     const stored = localStorage.getItem("chatMessages");
@@ -18,6 +18,7 @@ export default function ExperiencePage() {
       setSavedMessages(JSON.parse(stored));
     }
   }, []);
+  
   const [analysisResult, setAnalysisResult] = useState(null);
 
     useEffect(() => {
@@ -225,6 +226,7 @@ export default function ExperiencePage() {
             </div>
             
         )}
+
       </div>
     </div>
     </div>
