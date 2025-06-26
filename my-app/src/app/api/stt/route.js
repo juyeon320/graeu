@@ -9,7 +9,7 @@ const openai = new OpenAI({
 });
 
 const ELEVENLABS_API_KEY = process.env.ELEVENLABS_API_KEY;
-const VOICE_ID = "Xb7hH8MSUJpSbSDYk0k2";
+const VOICE_ID = "AW5wrnG1jVizOYY7R1Oo";
 const MAX_DURATION = 5;
 
 const commonPrompt = {
@@ -138,9 +138,9 @@ export async function POST(req) {
       text: gptReply,
       model_id: "eleven_multilingual_v2",
       voice_settings: {
-        stability: 0.5,
-        similarity_boost: 0.8,
-        style: 1.0,
+        stability: 0.3,
+        similarity_boost: 0.4,
+        style: 0.7,
       },
     };
 
